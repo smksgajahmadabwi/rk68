@@ -44,27 +44,41 @@
         .category-header { background-color: #e2e3e5; font-weight: bold; }
         tr.clickable { cursor: pointer; }
         tr.clickable:hover { background-color: #fff8e1; }
-        
-        /* === PERUBAHAN CSS DI SINI === */
-        .cell-check {
-            text-align: center;
-        }
-        .cell-check.checked {
-            background-color: #cfe2ff; /* Blok warna biru muda */
-        }
-        .cell-value {
-            text-align: right;
-            font-weight: bold;
-            /* background-color dihilangkan agar jadi putih/transparan */
-            white-space: nowrap;
-        }
-        /* === AKHIR PERUBAHAN CSS === */
-
+        .cell-check { text-align: center; }
+        .cell-check.checked { background-color: #cfe2ff; }
+        .cell-value { text-align: right; font-weight: bold; white-space: nowrap; }
         .delete-btn { color: var(--danger-color); cursor: pointer; font-weight: bold; padding: 5px; font-size: 1.1em; }
-        .footer-signatures { margin-top: 50px; display: flex; justify-content: space-between; page-break-inside: avoid; }
-        .signature-block { width: 45%; text-align: center;display: flex;flex-direction: column; justify-content: space-between;min-height: 130px; }
-        .signature-block .name {font-weight: bold; text-decoration: underline; }
-        .editable { border: 1px dashed #ccc; padding: 2px 5px; min-width: 150px; display: inline-block; }
+        
+        /* === PERUBAHAN CSS UNTUK TANDA TANGAN LURUS (START) === */
+        .footer-signatures {
+            margin-top: 50px;
+            display: flex;
+            justify-content: space-between;
+            page-break-inside: avoid;
+        }
+        .signature-block {
+            width: 45%;
+            text-align: center;
+            display: flex;
+            flex-direction: column; /* Mengatur elemen di dalamnya (title & name) secara vertikal */
+        }
+        .signature-title {
+            min-height: 40px; /* Memberi ruang yang cukup untuk 2 baris teks di bagian kepala sekolah */
+        }
+        .signature-name {
+            margin-top: auto; /* KUNCI: Mendorong blok nama ini ke bagian paling bawah */
+            padding-top: 40px; /* Memberi ruang di atas nama untuk area TTD */
+            font-weight: bold;
+            text-decoration: underline;
+        }
+        .editable {
+            border: 1px dashed #ccc;
+            padding: 2px 5px;
+            display: inline-block;
+            /* min-width dihapus agar lebih fleksibel dan tidak merusak layout */
+        }
+        /* === PERUBAHAN CSS UNTUK TANDA TANGAN LURUS (END) === */
+
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
@@ -94,7 +108,7 @@
             .footer-signatures { margin-top: 40px; }
             .cell-check.checked {
                 background-color: #cfe2ff !important;
-                -webkit-print-color-adjust: exact; /* Memastikan warna tercetak */
+                -webkit-print-color-adjust: exact;
                 print-color-adjust: exact;
             }
         }
@@ -347,19 +361,33 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const printButtonHTML = `<div class="print-controls"><button class="btn-sm btn-print">Cetak / Simpan PDF</button></div>`;
+    
+    // === PERUBAHAN JAVASCRIPT UNTUK STRUKTUR TANDA TANGAN (START) ===
     const signatureHTML = (type) => {
         const isRkas = type.startsWith('rkas');
+        // Struktur HTML diubah agar lebih mudah diatur dengan CSS Flexbox
+        // Setiap blok tanda tangan memiliki .signature-title (untuk jabatan) dan .signature-name (untuk nama)
         return `<div class="footer-signatures">
             <div class="signature-block">
-                ${isRkas ? `Ketua Komite Sekolah,<div class="name"><span class="editable" contenteditable="true">Drs.BEKTI AFIANTO,MM</span></div>` : '<div></div>'}
+                <div class="signature-title">
+                    ${isRkas ? `Ketua Komite Sekolah,` : ' '}
+                </div>
+                <div class="signature-name">
+                    ${isRkas ? `<span class="editable" contenteditable="true">Drs.BEKTI AFIANTO,MM</span>` : ' '}
+                </div>
             </div>
             <div class="signature-block">
-                Banyuwangi, <span class="editable" contenteditable="true">DD MMMM YYYY</span>
-                <br>Kepala SMK Gajah Mada Banyuwangi
-                <div class="name"><span class="editable" contenteditable="true">Drs. H. WITJANARKO,M.Pd</span></div>
+                <div class="signature-title">
+                    Banyuwangi, <span class="editable" contenteditable="true">DD MMMM YYYY</span>
+                    <br>Kepala SMK Gajah Mada Banyuwangi
+                </div>
+                <div class="signature-name">
+                    <span class="editable" contenteditable="true">Drs. H. WITJANARKO,M.Pd</span>
+                </div>
             </div>
         </div>`;
     };
+    // === PERUBAHAN JAVASCRIPT UNTUK STRUKTUR TANDA TANGAN (END) ===
 
     const generateTableBody = (data, rowRenderer) => {
         let body = '';
