@@ -1,0 +1,562 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SMK Gajah Mada Banyuwangi</title>
+    <!-- Include LokiJS Library -->
+    <script src="https://unpkg.com/lokijs@1.5.12/build/lokijs.min.js"></script>
+    <style>
+        :root {
+            --primary-color: #004a99; --secondary-color: #f0f2f5; --success-color: #198754;
+			--danger-color: #dc3545; --info-color: #0d6efd; --warning-color: #ffc107; 
+			--text-color: #333; --light-gray: #e9ecef; --border-color: #000;
+        }
+        @import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700&display=swap');
+        body { font-family: 'Roboto', 'Segoe UI', Tahoma, sans-serif; margin: 0; background-color: var(--secondary-color); color: var(--text-color); }
+        .main-container { max-width: 95%; margin: 20px auto; background-color: #fff; border-radius: 12px; box-shadow: 0 8px 25px rgba(0,0,0,0.1); }
+        .header { display: flex; align-items: center; gap: 20px; padding: 20px 25px; border-bottom: 1px solid var(--border-color); }
+        .header img { height: 60px; }
+        .header-text h1 { margin: 0; color: var(--primary-color); font-size: 1.8em; }
+        .header-text p { margin: 0; font-size: 0.9em; color: #6c757d; }
+        .content-wrapper { padding: 25px; }
+        .main-controls { padding: 15px; background-color: #fafbfc; border-radius: 8px; margin-bottom: 25px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; border: 1px solid var(--border-color); }
+        .main-controls div { margin: 5px; }
+        .main-controls label { font-weight: 500; margin-right: 10px; }
+        .main-controls select { padding: 8px 12px; border-radius: 4px; border: 1px solid #ccc; background: #fff; }
+        .tab-nav { display: flex; flex-wrap: wrap; border-bottom: 2px solid var(--border-color); }
+        .tab-link { padding: 12px 18px; cursor: pointer; border: none; background: none; font-size: 14px; font-weight: 500; color: #495057; border-bottom: 3px solid transparent; margin-bottom: -2px; white-space: nowrap; transition: color 0.2s, border-color 0.2s; }
+        .tab-link:hover { color: var(--primary-color); }
+        .tab-link.active { font-weight: 700; color: var(--primary-color); border-bottom-color: var(--primary-color); }
+        .tab-content { display: none; padding-top: 20px; }
+        .tab-content.active { display: block; }
+        .btn-sm { padding: 8px 15px; font-size: 14px; margin-left: 8px; border-radius: 5px; border: none; cursor: pointer; color: white; transition: opacity 0.2s; }
+        .btn-sm:hover { opacity: 0.85; }
+        .btn-download { background-color: var(--success-color); }
+        .btn-upload { background-color: var(--info-color); position: relative; }
+        .csv-upload-input { position: absolute; left: 0; top: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer; }
+        .table-wrapper { overflow-x: auto; border: 1px solid var(--border-color); border-radius: 8px; }
+        table { width: 100%; border-collapse: collapse; font-size: 11px; }
+        th, td { border: 1px solid var(--border-color); padding: 8px; text-align: left; vertical-align: middle; }
+        th { background-color: var(--light-gray); text-align: center; font-weight: 700; white-space: nowrap; }
+        tbody tr:nth-child(even) { background-color: #f8f9fa; }
+        tfoot .total-row { background-color: #e2e3e5; font-weight: bold; }
+        .category-header { background-color: #e2e3e5; font-weight: bold; }
+        tr.clickable { cursor: pointer; }
+        tr.clickable:hover { background-color: #fff8e1; }
+        
+        /* === PERUBAHAN CSS DI SINI === */
+        .cell-check {
+            text-align: center;
+        }
+        .cell-check.checked {
+            background-color: #cfe2ff; /* Blok warna biru muda */
+        }
+        .cell-value {
+            text-align: right;
+            font-weight: bold;
+            /* background-color dihilangkan agar jadi putih/transparan */
+            white-space: nowrap;
+        }
+        /* === AKHIR PERUBAHAN CSS === */
+
+        .delete-btn { color: var(--danger-color); cursor: pointer; font-weight: bold; padding: 5px; font-size: 1.1em; }
+        .footer-signatures { margin-top: 50px; display: flex; justify-content: space-around; page-break-inside: avoid; }
+        .signature-block { width: 300px; text-align: center; }
+        .signature-block .name { margin-top: 80px; font-weight: bold; text-decoration: underline; }
+        .editable { border: 1px dashed #ccc; padding: 2px 5px; min-width: 150px; display: inline-block; }
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
+        .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
+        .modal-header h2 { margin: 0; color: var(--primary-color); font-size: 1.2em; }
+        .close-btn { color: #aaa; font-size: 28px; font-weight: bold; cursor: pointer; }
+        #formulir-container { max-width: 600px; margin: 20px auto; padding: 25px; border: 1px solid var(--border-color); border-radius: 8px; background-color: #fdfdfd; }
+        #formulir-container h3 { text-align: center; color: var(--primary-color); margin-top: 0; }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        .form-group input[type="text"], .form-group input[type="number"], .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
+        .checkbox-group label { font-weight: normal; margin-right: 15px; display: inline-block; }
+        .btn { background-color: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; transition: opacity 0.2s; }
+        .btn:hover { opacity: 0.85; }
+        .print-controls { text-align: right; margin-bottom: 15px; }
+        .btn-print { background-color: #6c757d; }
+
+        @media print { 
+            body { background-color: #fff; font-size: 9pt; } 
+            .main-container { box-shadow: none; margin: 0; padding: 0; max-width: 100%; border-radius: 0; }
+            .header, .main-controls, .tab-nav, #tab-formulir, .delete-btn, .print-controls, .modal, .btn-sm { display: none; } 
+            .content-wrapper { padding: 0; }
+            .tab-content { display: none !important; } 
+            .tab-content.active { display: block !important; padding-top: 0; } 
+            .table-wrapper { border: none; overflow: visible; }
+            table { font-size: 8pt; }
+            h3 { text-align: center; }
+            .footer-signatures { margin-top: 40px; }
+            .cell-check.checked {
+                background-color: #cfe2ff !important;
+                -webkit-print-color-adjust: exact; /* Memastikan warna tercetak */
+                print-color-adjust: exact;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="main-container">
+    <div class="header">
+        <img src="LOGO_GM.png" alt="Logo Sekolah">
+        <div class="header-text">
+            <h1>SISTEM MANAJEMEN RENCANA KERJA SEKOLAH</h1>
+            <p>SMK GAJAH MADA BANYUWANGI</p>
+        </div>
+    </div>
+    <div class="content-wrapper">
+        <div class="main-controls">
+            <div><label for="pj-filter">Filter Penanggung Jawab:</label><select id="pj-filter"></select></div>
+            <div>
+                <button class="btn-sm btn-download" id="download-all-btn">Download Semua Data</button>
+                <label class="btn-sm btn-upload">Upload/Gabung Data<input type="file" id="upload-all-input" class="csv-upload-input" accept=".csv"></label>
+            </div>
+        </div>
+        <div class="tab-nav">
+            <button class="tab-link active" data-tab="tab-formulir">INPUT KEGIATAN</button>
+            <button class="tab-link" data-tab="tab-rkjm">RKJM</button>
+            <button class="tab-link" data-tab="tab-rks-2526">RKS 2025/26</button>
+            <button class="tab-link" data-tab="tab-rks-2627">RKS 2026/27</button>
+            <button class="tab-link" data-tab="tab-rks-2728">RKS 2027/28</button>
+            <button class="tab-link" data-tab="tab-rks-2829">RKS 2028/29</button>
+            <button class="tab-link" data-tab="tab-rkas-2526">RKAS 2025/26</button>
+            <button class="tab-link" data-tab="tab-rkas-2627">RKAS 2026/27</button>
+            <button class="tab-link" data-tab="tab-rkas-2728">RKAS 2027/28</button>
+            <button class="tab-link" data-tab="tab-rkas-2829">RKAS 2028/29</button>
+        </div>
+        
+        <div id="tab-formulir" class="tab-content active">
+            <div id="formulir-container">
+                <h3>INPUT KEGIATAN</h3>
+                <form id="kegiatan-form">
+                    <div class="form-group"><label for="uraian">Uraian Kegiatan</label><input type="text" id="uraian" required></div>
+                    <div class="form-group"><label for="standar">Standar Pendidikan</label><select id="standar" required></select></div>
+                    <div class="form-group"><label for="penanggungJawab">Penanggung Jawab</label><select id="penanggungJawab" required></select></div>
+                    <div class="form-group"><label for="tahun-ajaran">Tahun Ajaran</label><select id="tahun-ajaran" required></select></div>
+                    <div class="form-group"><label for="bulan">Bulan Pelaksanaan</label><select id="bulan" required></select></div>
+                    <div class="form-group"><label>Sumber Dana Direncanakan</label><div class="checkbox-group" id="sumber-dana-group"></div></div>
+                    <button type="submit" class="btn">Simpan Kegiatan</button>
+                </form>
+            </div>
+        </div>
+        <div id="tab-rkjm" class="tab-content"></div>
+        <div id="tab-rks-2526" class="tab-content"></div><div id="tab-rks-2627" class="tab-content"></div>
+        <div id="tab-rks-2728" class="tab-content"></div><div id="tab-rks-2829" class="tab-content"></div>
+        <div id="tab-rkas-2526" class="tab-content"></div><div id="tab-rkas-2627" class="tab-content"></div>
+        <div id="tab-rkas-2728" class="tab-content"></div><div id="tab-rkas-2829" class="tab-content"></div>
+    </div>
+</div>
+
+<div id="anggaran-modal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header"><h2 id="modal-title">Input Anggaran Kegiatan</h2><span class="close-btn">×</span></div>
+        <form id="anggaran-form">
+            <input type="hidden" id="modal-kegiatan-id">
+            <div class="form-group"><label for="modal-sumber-dana">Sumber Dana</label><select id="modal-sumber-dana" required></select></div>
+            <div class="form-group"><label for="modal-nilai">Nilai Anggaran (Rp)</label><input type="number" id="modal-nilai" placeholder="Contoh: 5000000" required min="1"></div>
+            <button type="submit" class="btn">Simpan Anggaran</button>
+        </form>
+        <hr>
+        <h4>Anggaran yang Sudah Ditambahkan</h4>
+        <div class="table-wrapper"><table id="modal-anggaran-table"><thead><tr><th>Sumber Dana</th><th>Nilai (Rp)</th><th>Aksi</th></tr></thead><tbody></tbody></table></div>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const CONFIG = {
+        STANDAR: ["A. Standar Isi", "B. Standar Proses", "C. Standar Kompetensi Lulusan", "D. Standar Tenaga Pendidik dan Kependidikan", "E. Standar Sarana dan Prasarana", "F. Standar Pengelolaan", "G. Standar Pembiayaan", "H. Standar Penilaian"],
+        PJ: ["Kepala Sekolah", "Waka. Kurikulum", "Waka. Humas", "Waka. Sarpras", "Waka. Kesiswaan", "Ka. TU", "Ka. TEFA", "K3 TKR", "K3 TAV", "K3 TSM", "K3 TKJ", "K3 DKV", "K3 AKL", "K3 MP"],
+        DANA: ["PSM", "BOS", "BPOPP", "TEFA", "HIBAH"],
+        TAHUN_AJARAN: ["2025/2026", "2026/2027", "2027/2028", "2028/2029"],
+        BULAN: ["Juli", "Agustus", "September", "Oktober", "November", "Desember", "Januari", "Februari", "Maret", "April", "Mei", "Juni"]
+    };
+    
+    // --- LokiJS Database Setup ---
+    let db, kegiatanCollection;
+    const DB_NAME = 'smk-gama-rkjm-db';
+    const adapter = new loki.LokiLocalStorageAdapter();
+
+    function init() {
+        db = new loki(DB_NAME, {
+            adapter: adapter,
+            autoload: true,
+            autoloadCallback: databaseInitialize,
+            autosave: true,
+            autosaveInterval: 4000
+        });
+    }
+
+    function databaseInitialize() {
+        kegiatanCollection = db.getCollection("kegiatan");
+        if (kegiatanCollection === null) {
+            kegiatanCollection = db.addCollection("kegiatan", { unique: ['id'] });
+        }
+        
+        populateFormOptions();
+        setupEventListeners();
+        renderAllTables();
+    }
+
+    const kegiatanForm = document.getElementById('kegiatan-form');
+    const anggaranModal = document.getElementById('anggaran-modal');
+    const closeModalBtn = anggaranModal.querySelector('.close-btn');
+    const anggaranForm = document.getElementById('anggaran-form');
+    const pjFilter = document.getElementById('pj-filter');
+    const downloadAllBtn = document.getElementById('download-all-btn');
+    const uploadAllInput = document.getElementById('upload-all-input');
+
+    function populateFormOptions() {
+        const createOptions = (arr) => arr.map(item => `<option value="${item}">${item}</option>`).join('');
+        const createCheckboxes = (arr, name) => arr.map(item => `<label><input type="checkbox" name="${name}" value="${item}"> ${item}</label>`).join('');
+        document.getElementById('standar').innerHTML = createOptions(CONFIG.STANDAR);
+        document.getElementById('penanggungJawab').innerHTML = createOptions(CONFIG.PJ);
+        document.getElementById('tahun-ajaran').innerHTML = createOptions(CONFIG.TAHUN_AJARAN);
+        document.getElementById('bulan').innerHTML = createOptions(CONFIG.BULAN);
+        document.getElementById('modal-sumber-dana').innerHTML = createOptions(CONFIG.DANA);
+        document.getElementById('sumber-dana-group').innerHTML = createCheckboxes(CONFIG.DANA, 'sumberDanaDirencakan');
+        pjFilter.innerHTML = `<option value="Semua">Semua Penanggung Jawab</option>` + createOptions(CONFIG.PJ);
+    }
+
+    function setupEventListeners() {
+        kegiatanForm.addEventListener('submit', handleFormSubmit);
+        closeModalBtn.addEventListener('click', () => anggaranModal.style.display = 'none');
+        window.addEventListener('click', (e) => { if (e.target == anggaranModal) anggaranModal.style.display = 'none'; });
+        anggaranForm.addEventListener('submit', handleAnggaranSubmit);
+        downloadAllBtn.addEventListener('click', handleDownloadAll);
+        uploadAllInput.addEventListener('change', handleUploadAll);
+        pjFilter.addEventListener('change', renderAllTables);
+        document.querySelector('.content-wrapper').addEventListener('click', handleMainContentClick);
+    }
+    
+    function handleMainContentClick(e) {
+        if (e.target.classList.contains('tab-link')) {
+            document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+            document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+            e.target.classList.add('active');
+            document.getElementById(e.target.dataset.tab).classList.add('active');
+        }
+        if (e.target.classList.contains('delete-btn')) {
+            const idToDelete = parseInt(e.target.dataset.id);
+            if (confirm('Yakin ingin menghapus kegiatan ini dan semua anggarannya?')) {
+                kegiatanCollection.findAndRemove({ id: idToDelete });
+                db.saveDatabase();
+                renderAllTables();
+            }
+        }
+        if (e.target.classList.contains('btn-print')) {
+            window.print();
+        }
+        const row = e.target.closest('tr.clickable');
+        if (row) {
+            const id = parseInt(row.dataset.id);
+            const kegiatan = kegiatanCollection.findOne({ id: id });
+            if (kegiatan) openAnggaranModal(kegiatan);
+        }
+    }
+
+    function handleFormSubmit(e) {
+        e.preventDefault();
+        const getCheckedValues = (name) => Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
+        const newKegiatan = {
+            id: Date.now(),
+            uraian: document.getElementById('uraian').value.trim(),
+            standar: document.getElementById('standar').value,
+            pj: document.getElementById('penanggungJawab').value,
+            tahunAjaran: document.getElementById('tahun-ajaran').value,
+            bulan: document.getElementById('bulan').value,
+            sumberDanaDirencakan: getCheckedValues('sumberDanaDirencakan'),
+            anggaran: []
+        };
+        if (!newKegiatan.uraian) { alert("Uraian kegiatan tidak boleh kosong."); return; }
+        if (newKegiatan.sumberDanaDirencakan.length === 0) { alert("Pilih minimal satu sumber dana yang direncanakan."); return; }
+        kegiatanCollection.insert(newKegiatan);
+        db.saveDatabase();
+        renderAllTables();
+        kegiatanForm.reset();
+        alert('Kegiatan berhasil didaftarkan!');
+    }
+
+    function handleAnggaranSubmit(e) {
+        e.preventDefault();
+        const kegiatanId = parseInt(document.getElementById('modal-kegiatan-id').value);
+        const kegiatan = kegiatanCollection.findOne({ id: kegiatanId });
+        if(kegiatan) {
+            const sumberDana = document.getElementById('modal-sumber-dana').value;
+            const nilai = parseFloat(document.getElementById('modal-nilai').value) || 0;
+            const existingAnggaranIndex = kegiatan.anggaran.findIndex(a => a.sumberDana === sumberDana);
+            if (existingAnggaranIndex > -1) {
+                kegiatan.anggaran[existingAnggaranIndex].nilai = nilai;
+            } else {
+                kegiatan.anggaran.push({ sumberDana, nilai });
+            }
+            kegiatanCollection.update(kegiatan);
+            db.saveDatabase();
+            renderAnggaranDiModal(kegiatan);
+            renderAllTables();
+        }
+        document.getElementById('modal-sumber-dana').value = CONFIG.DANA[0];
+        document.getElementById('modal-nilai').value = '';
+    }
+
+    function openAnggaranModal(kegiatan) {
+        document.getElementById('modal-title').textContent = `Anggaran: ${kegiatan.uraian}`;
+        document.getElementById('modal-kegiatan-id').value = kegiatan.id;
+        renderAnggaranDiModal(kegiatan);
+        anggaranModal.style.display = 'block';
+    }
+
+    function renderAnggaranDiModal(kegiatan) {
+        const tbody = document.getElementById('modal-anggaran-table').querySelector('tbody');
+        tbody.innerHTML = kegiatan.anggaran.map((item, index) => `
+            <tr>
+                <td>${item.sumberDana}</td>
+                <td style="text-align: right;">${item.nilai.toLocaleString('id-ID')}</td>
+                <td style="text-align: center;"><span class="delete-btn" onclick="hapusAnggaranItem(${kegiatan.id}, ${index})">X</span></td>
+            </tr>
+        `).join('');
+    }
+    
+    window.hapusAnggaranItem = function(kegiatanId, index) {
+        const kegiatan = kegiatanCollection.findOne({ id: kegiatanId });
+        if (kegiatan) {
+            kegiatan.anggaran.splice(index, 1);
+            kegiatanCollection.update(kegiatan);
+            db.saveDatabase();
+            renderAnggaranDiModal(kegiatan);
+            renderAllTables();
+        }
+    }
+    
+    function renderAllTables() {
+        const selectedPj = pjFilter.value;
+        const query = (selectedPj === 'Semua') ? {} : { 'pj': selectedPj };
+        const filteredDB = kegiatanCollection.chain().find(query).simplesort('standar').data();
+        renderRkjmTable(filteredDB);
+        CONFIG.TAHUN_AJARAN.forEach(th => {
+            const thId = th.substring(2, 4) + th.substring(7, 9);
+            renderRksTable(th, thId, filteredDB);
+            renderRkasTable(th, thId, filteredDB);
+        });
+    }
+
+    const printButtonHTML = `<div class="print-controls"><button class="btn-sm btn-print">Cetak / Simpan PDF</button></div>`;
+    const signatureHTML = (type) => {
+        const isRkas = type.startsWith('rkas');
+        return `<div class="footer-signatures">
+            <div class="signature-block">
+                ${isRkas ? `Ketua Komite Sekolah,<div class="name"><span class="editable" contenteditable="true">Drs.BEKTI AFIANTO,MM</span></div>` : '<div></div>'}
+            </div>
+            <div class="signature-block">
+                Banyuwangi, <span class="editable" contenteditable="true">DD MMMM YYYY</span>
+                <br>Kepala SMK Gajah Mada Banyuwangi
+                <div class="name"><span class="editable" contenteditable="true">Drs. H. WITJANARKO,M.Pd</span></div>
+            </div>
+        </div>`;
+    };
+
+    const generateTableBody = (data, rowRenderer) => {
+        let body = '';
+        let lastStandar = null;
+        data.forEach((item, index) => {
+            if (item.standar !== lastStandar) {
+                body += `<tr class="category-header"><td colspan="100%">${item.standar}</td></tr>`;
+                lastStandar = item.standar;
+            }
+            body += rowRenderer(item, index + 1);
+        });
+        return body;
+    };
+
+    function renderRkjmTable(data) {
+        const container = document.getElementById('tab-rkjm');
+        const header = `<h3>RENCANA KERJA JANGKA MENENGAH (RKJM) TAHUN 2025-2029</h3>
+            <div class="table-wrapper"><table><thead>
+            <tr><th rowspan="2">No</th><th rowspan="2">Program</th><th colspan="${CONFIG.TAHUN_AJARAN.length}">Rencana Pelaksanaan (Tahun Ajaran)</th><th colspan="${CONFIG.DANA.length}">Sumber Dana</th><th rowspan="2">Pjwb</th></tr>
+            <tr>${CONFIG.TAHUN_AJARAN.map(th=>`<th>${th}</th>`).join('')}${CONFIG.DANA.map(d=>`<th>${d}</th>`).join('')}</tr>
+            </thead><tbody>`;
+        
+        const summary = data.reduce((acc, item) => {
+            const key = item.uraian + item.pj;
+            if (!acc[key]) { acc[key] = { ...item, tahun: new Set(), sumberDana: new Set() }; }
+            acc[key].tahun.add(item.tahunAjaran);
+            const danaSources = item.anggaran.length > 0 ? item.anggaran.map(a => a.sumberDana) : item.sumberDanaDirencakan;
+            danaSources.forEach(dana => acc[key].sumberDana.add(dana));
+            return acc;
+        }, {});
+        const summaryAsArray = Object.values(summary);
+
+        const rowRenderer = (item, no) => `<tr>
+            <td style="text-align: center;">${no}</td><td>${item.uraian}</td>
+            ${CONFIG.TAHUN_AJARAN.map(th => `<td class="cell-check ${item.tahun.has(th) ? 'checked' : ''}"></td>`).join('')}
+            ${CONFIG.DANA.map(d => `<td class="cell-check ${item.sumberDana.has(d) ? 'checked' : ''}"></td>`).join('')}
+            <td>${item.pj}</td></tr>`;
+
+        const body = generateTableBody(summaryAsArray, rowRenderer);
+        container.innerHTML = printButtonHTML + header + body + `</tbody></table></div>` + signatureHTML('rkjm');
+    }
+
+    function renderRksTable(tahunAjaran, thId, data) {
+        const container = document.getElementById(`tab-rks-${thId}`);
+        const startYear = parseInt(tahunAjaran.substring(0, 4));
+        const endYear = startYear + 1;
+        const header = `<h3>RENCANA KERJA SEKOLAH (RKS) TAHUN AJARAN ${tahunAjaran}</h3>
+            <div class="table-wrapper"><table><thead>
+            <tr>
+                <th rowspan="3">No</th><th rowspan="3">Program</th>
+                <th colspan="12">Bulan Pelaksanaan</th>
+                <th rowspan="2" colspan="${CONFIG.DANA.length}">Sumber Dana Direncanakan</th>
+                <th rowspan="3">Pjwb</th><th rowspan="3">Aksi</th>
+            </tr>
+            <tr><th colspan="6">Tahun ${startYear}</th><th colspan="6">Tahun ${endYear}</th></tr>
+            <tr>
+                ${CONFIG.BULAN.map(b=>`<th>${b.substring(0,3)}</th>`).join('')}
+                ${CONFIG.DANA.map(d=>`<th>${d}</th>`).join('')}
+            </tr>
+            </thead><tbody>`;
+        
+        const filteredData = data.filter(k => k.tahunAjaran === tahunAjaran);
+        const rowRenderer = (item, no) => `<tr data-id="${item.id}">
+            <td style="text-align: center;">${no}</td><td>${item.uraian}</td>
+            ${CONFIG.BULAN.map(b => `<td class="cell-check ${item.bulan === b ? 'checked' : ''}"></td>`).join('')}
+            ${CONFIG.DANA.map(d => `<td class="cell-check ${item.sumberDanaDirencakan.includes(d) ? 'checked' : ''}"></td>`).join('')}
+            <td>${item.pj}</td><td style="text-align: center;"><span class="delete-btn" data-id="${item.id}">X</span></td></tr>`;
+        
+        const body = generateTableBody(filteredData, rowRenderer);
+        container.innerHTML = printButtonHTML + header + body + `</tbody></table></div>` + signatureHTML('rks');
+    }
+
+    function renderRkasTable(tahunAjaran, thId, data) {
+        const container = document.getElementById(`tab-rkas-${thId}`);
+        const startYear = parseInt(tahunAjaran.substring(0, 4));
+        const endYear = startYear + 1;
+        const header = `<h3>RENCANA KEGIATAN DAN ANGGARAN SEKOLAH (RKAS) TAHUN AJARAN ${tahunAjaran}</h3>
+            <div class="table-wrapper"><table><thead>
+            <tr>
+                <th rowspan="3">No</th><th rowspan="3">Program</th>
+                <th colspan="12">Bulan Pelaksanaan</th>
+                <th rowspan="2" colspan="${CONFIG.DANA.length}">Sumber Dana (Rp)</th>
+                <th rowspan="3">Jumlah</th><th rowspan="3">Pjwb</th><th rowspan="3">Aksi</th>
+            </tr>
+            <tr><th colspan="6">Tahun ${startYear}</th><th colspan="6">Tahun ${endYear}</th></tr>
+            <tr>
+                ${CONFIG.BULAN.map(b=>`<th>${b.substring(0,3)}</th>`).join('')}
+                ${CONFIG.DANA.map(d=>`<th>${d}</th>`).join('')}
+            </tr></thead><tbody>`;
+        
+        const filteredData = data.filter(k => k.tahunAjaran === tahunAjaran);
+        const rowRenderer = (item, no) => {
+            const nilaiPerDana = item.anggaran.reduce((acc, ang) => ({...acc, [ang.sumberDana]: (acc[ang.sumberDana] || 0) + ang.nilai}), {});
+            const totalNilai = item.anggaran.reduce((sum, ang) => sum + ang.nilai, 0);
+            return `<tr class="clickable" data-id="${item.id}">
+                <td style="text-align: center;">${no}</td><td>${item.uraian}</td>
+                ${CONFIG.BULAN.map(b => `<td class="cell-check ${item.bulan === b ? 'checked' : ''}"></td>`).join('')}
+                ${CONFIG.DANA.map(d => `<td class="cell-value">${(nilaiPerDana[d] || 0).toLocaleString('id-ID')}</td>`).join('')}
+                <td class="cell-value">${totalNilai.toLocaleString('id-ID')}</td>
+                <td>${item.pj}</td><td style="text-align: center;"><span class="delete-btn" data-id="${item.id}">X</span></td></tr>`;
+        };
+        const body = generateTableBody(filteredData, rowRenderer);
+
+        const grandTotals = CONFIG.DANA.reduce((acc, dana) => ({ ...acc, [dana]: 0 }), { total: 0 });
+        filteredData.forEach(item => {
+            item.anggaran.forEach(ang => {
+                if (grandTotals.hasOwnProperty(ang.sumberDana)) grandTotals[ang.sumberDana] += ang.nilai;
+                grandTotals.total += ang.nilai;
+            });
+        });
+        
+        let tfoot = `<tfoot class="total-row"><tr><td colspan="${2 + CONFIG.BULAN.length}" style="text-align:center;">JUMLAH TOTAL</td>`;
+        CONFIG.DANA.forEach(d => { tfoot += `<td class="cell-value">${(grandTotals[d] || 0).toLocaleString('id-ID')}</td>`; });
+        tfoot += `<td class="cell-value">${grandTotals.total.toLocaleString('id-ID')}</td><td colspan="2"></td></tr></tfoot>`;
+        
+        container.innerHTML = printButtonHTML + header + body + tfoot + `</tbody></table></div>` + signatureHTML('rkas');
+    }
+
+    // --- CSV and File Handling Functions ---
+    function arrayToCsv(data) { 
+        if (data.length === 0) return ""; 
+        const cleanData = data.map(({ id, uraian, standar, pj, tahunAjaran, bulan, sumberDanaDirencakan, anggaran }) => 
+            ({ id, uraian, standar, pj, tahunAjaran, bulan, sumberDanaDirencakan, anggaran }));
+        const dataForCsv = cleanData.map(row => { 
+            const newRow = {...row}; 
+            newRow.anggaran = JSON.stringify(newRow.anggaran); 
+            newRow.sumberDanaDirencakan = JSON.stringify(newRow.sumberDanaDirencakan); 
+            return newRow; 
+        }); 
+        const headers = Object.keys(dataForCsv[0]); 
+        const csvRows = [headers.join(',')]; 
+        for (const row of dataForCsv) { 
+            const values = headers.map(header => { 
+                let val = row[header]; 
+                if (val === null || val === undefined) val = ''; 
+                if (typeof val === 'string' && val.includes(',')) val = `"${val.replace(/"/g, '""')}"`; 
+                return val; 
+            }); 
+            csvRows.push(values.join(',')); 
+        } 
+        return csvRows.join('\n'); 
+    }
+    
+    function csvToArray(csvText) { const rows = csvText.trim().split('\n'); const headers = rows.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim()); return rows.map(row => { const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); return headers.reduce((obj, header, i) => { let value = values[i] ? values[i].replace(/,$/, '').trim() : ''; if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1).replace(/""/g, '"'); try { const parsed = JSON.parse(value); obj[header] = parsed; } catch (e) { obj[header] = value; } return obj; }, {}); }); }
+    
+    function handleDownloadAll() { 
+        const allData = kegiatanCollection.find({});
+        if (allData.length === 0) { alert('Tidak ada data kegiatan untuk diunduh.'); return; } 
+        const csv = arrayToCsv(allData); 
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' }); 
+        const link = document.createElement("a"); const url = URL.createObjectURL(blob); 
+        link.setAttribute("href", url); link.setAttribute("download", `data_kegiatan_sekolah_backup.csv`); 
+        link.style.visibility = 'hidden'; document.body.appendChild(link); link.click(); document.body.removeChild(link); 
+    }
+    
+    function handleUploadAll(e) { 
+        const file = e.target.files[0]; if (!file) return; 
+        const reader = new FileReader(); 
+        reader.onload = (event) => { 
+            try { 
+                const importedData = csvToArray(event.target.result); 
+                if (importedData.length === 0) throw new Error("File CSV kosong atau format tidak valid."); 
+                if (!confirm(`Anda akan menggabungkan/memperbarui data dari file ini. Data yang ada dengan ID yang sama akan ditimpa. Lanjutkan?`)) { 
+                    e.target.value = ''; return; 
+                } 
+                const newData = importedData.map(row => ({ 
+                    ...row, 
+                    id: parseInt(row.id), 
+                    anggaran: Array.isArray(row.anggaran) ? row.anggaran : [], 
+                    sumberDanaDirencakan: Array.isArray(row.sumberDanaDirencakan) ? row.sumberDanaDirencakan : [] 
+                })); 
+                let addedCount = 0; let updatedCount = 0; 
+                newData.forEach(newItem => { 
+                    const existingDoc = kegiatanCollection.findOne({ id: newItem.id }); 
+                    if (existingDoc) { 
+                        Object.assign(existingDoc, newItem);
+                        kegiatanCollection.update(existingDoc);
+                        updatedCount++; 
+                    } else { 
+                        kegiatanCollection.insert(newItem); 
+                        addedCount++; 
+                    } 
+                }); 
+                db.saveDatabase();
+                renderAllTables(); 
+                alert(`Impor berhasil!\n${addedCount} kegiatan baru ditambahkan.\n${updatedCount} kegiatan diperbarui.`); 
+            } catch (error) { 
+                alert('Gagal mengimpor file. Pastikan format CSV benar. Error: ' + error.message); 
+            } finally { 
+                e.target.value = ''; 
+            } 
+        }; 
+        reader.readAsText(file); 
+    }
+    
+    init();
+});
+</script>
+</body>
+</html>
