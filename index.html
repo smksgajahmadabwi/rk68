@@ -1,3 +1,5 @@
+--- START OF FILE index.html ---
+
 <!DOCTYPE html>
 <html lang="id">
 <head>
@@ -44,41 +46,27 @@
         .category-header { background-color: #e2e3e5; font-weight: bold; }
         tr.clickable { cursor: pointer; }
         tr.clickable:hover { background-color: #fff8e1; }
-        .cell-check { text-align: center; }
-        .cell-check.checked { background-color: #cfe2ff; }
-        .cell-value { text-align: right; font-weight: bold; white-space: nowrap; }
-        .delete-btn { color: var(--danger-color); cursor: pointer; font-weight: bold; padding: 5px; font-size: 1.1em; }
         
-        /* === PERUBAHAN CSS UNTUK TANDA TANGAN LURUS (START) === */
-        .footer-signatures {
-            margin-top: 50px;
-            display: flex;
-            justify-content: space-between;
-            page-break-inside: avoid;
-        }
-        .signature-block {
-            width: 45%;
+        /* === PERUBAHAN CSS DI SINI === */
+        .cell-check {
             text-align: center;
-            display: flex;
-            flex-direction: column; /* Mengatur elemen di dalamnya (title & name) secara vertikal */
         }
-        .signature-title {
-            min-height: 40px; /* Memberi ruang yang cukup untuk 2 baris teks di bagian kepala sekolah */
+        .cell-check.checked {
+            background-color: #cfe2ff; /* Blok warna biru muda */
         }
-        .signature-name {
-            margin-top: auto; /* KUNCI: Mendorong blok nama ini ke bagian paling bawah */
-            padding-top: 40px; /* Memberi ruang di atas nama untuk area TTD */
+        .cell-value {
+            text-align: right;
             font-weight: bold;
-            text-decoration: underline;
+            /* background-color dihilangkan agar jadi putih/transparan */
+            white-space: nowrap;
         }
-        .editable {
-            border: 1px dashed #ccc;
-            padding: 2px 5px;
-            display: inline-block;
-            /* min-width dihapus agar lebih fleksibel dan tidak merusak layout */
-        }
-        /* === PERUBAHAN CSS UNTUK TANDA TANGAN LURUS (END) === */
+        /* === AKHIR PERUBAHAN CSS === */
 
+        .delete-btn { color: var(--danger-color); cursor: pointer; font-weight: bold; padding: 5px; font-size: 1.1em; }
+        .footer-signatures { margin-top: 50px; display: flex; justify-content: space-around; page-break-inside: avoid; }
+        .signature-block { width: 300px; text-align: center; }
+        .signature-block .name { margin-top: 80px; font-weight: bold; text-decoration: underline; }
+        .editable { border: 1px dashed #ccc; padding: 2px 5px; min-width: 150px; display: inline-block; }
         .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; overflow: auto; background-color: rgba(0,0,0,0.6); }
         .modal-content { background-color: #fefefe; margin: 10% auto; padding: 25px; border: 1px solid #888; width: 80%; max-width: 500px; border-radius: 8px; }
         .modal-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 10px; margin-bottom: 20px; }
@@ -88,8 +76,14 @@
         #formulir-container h3 { text-align: center; color: var(--primary-color); margin-top: 0; }
         .form-group { margin-bottom: 15px; }
         .form-group label { display: block; margin-bottom: 5px; font-weight: 500; }
+        /* Adjusted width for checkbox groups to allow multiple items in a row if space allows */
+        .form-group .checkbox-group label {
+            width: auto; /* Allow labels to take natural width */
+            margin-right: 15px; /* Spacing between checkboxes */
+            margin-bottom: 5px; /* Spacing between rows of checkboxes */
+            display: inline-block; /* Allow multiple on one line */
+        }
         .form-group input[type="text"], .form-group input[type="number"], .form-group select { width: 100%; padding: 10px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
-        .checkbox-group label { font-weight: normal; margin-right: 15px; display: inline-block; }
         .btn { background-color: var(--primary-color); color: white; border: none; padding: 12px 25px; border-radius: 5px; cursor: pointer; font-size: 16px; width: 100%; transition: opacity 0.2s; }
         .btn:hover { opacity: 0.85; }
         .print-controls { text-align: right; margin-bottom: 15px; }
@@ -108,7 +102,7 @@
             .footer-signatures { margin-top: 40px; }
             .cell-check.checked {
                 background-color: #cfe2ff !important;
-                -webkit-print-color-adjust: exact;
+                -webkit-print-color-adjust: exact; /* Memastikan warna tercetak */
                 print-color-adjust: exact;
             }
         }
@@ -152,8 +146,16 @@
                     <div class="form-group"><label for="uraian">Uraian Kegiatan</label><input type="text" id="uraian" required></div>
                     <div class="form-group"><label for="standar">Standar Pendidikan</label><select id="standar" required></select></div>
                     <div class="form-group"><label for="penanggungJawab">Penanggung Jawab</label><select id="penanggungJawab" required></select></div>
-                    <div class="form-group"><label for="tahun-ajaran">Tahun Ajaran</label><select id="tahun-ajaran" required></select></div>
-                    <div class="form-group"><label for="bulan">Bulan Pelaksanaan</label><select id="bulan" required></select></div>
+                    <!-- START OF CHANGES: Tahun Ajaran now uses checkboxes -->
+                    <div class="form-group">
+                        <label>Tahun Ajaran</label>
+                        <div class="checkbox-group" id="tahun-ajaran-group"></div>
+                    </div>
+                    <!-- END OF CHANGES -->
+                    <div class="form-group">
+                        <label>Bulan Pelaksanaan</label>
+                        <div class="checkbox-group" id="bulan-group"></div>
+                    </div>
                     <div class="form-group"><label>Sumber Dana Direncanakan</label><div class="checkbox-group" id="sumber-dana-group"></div></div>
                     <button type="submit" class="btn">Simpan Kegiatan</button>
                 </form>
@@ -213,6 +215,30 @@ document.addEventListener('DOMContentLoaded', () => {
             kegiatanCollection = db.addCollection("kegiatan", { unique: ['id'] });
         }
         
+        // --- Migration for existing data: Ensure array fields are indeed arrays ---
+        // This makes sure old data (where these fields might be single strings) becomes an array
+        kegiatanCollection.find({ bulan: { '$type': 'string' } }).forEach(doc => {
+            doc.bulan = doc.bulan ? [doc.bulan] : [];
+            kegiatanCollection.update(doc);
+        });
+        kegiatanCollection.find({ sumberDanaDirencakan: { '$type': 'string' } }).forEach(doc => {
+            doc.sumberDanaDirencakan = doc.sumberDanaDirencakan ? [doc.sumberDanaDirencakan] : [];
+            kegiatanCollection.update(doc);
+        });
+        // START OF NEW MIGRATION: Ensure 'tahunAjaran' is an array
+        kegiatanCollection.find({ tahunAjaran: { '$type': 'string' } }).forEach(doc => {
+            doc.tahunAjaran = doc.tahunAjaran ? [doc.tahunAjaran] : [];
+            kegiatanCollection.update(doc);
+        });
+        // END OF NEW MIGRATION
+        kegiatanCollection.find({ anggaran: { '$ne': null, '$type': 'object' } }).forEach(doc => { 
+            if (!Array.isArray(doc.anggaran)) {
+                doc.anggaran = [];
+                kegiatanCollection.update(doc);
+            }
+        });
+        db.saveDatabase(); // Save after potential migrations
+
         populateFormOptions();
         setupEventListeners();
         renderAllTables();
@@ -229,10 +255,15 @@ document.addEventListener('DOMContentLoaded', () => {
     function populateFormOptions() {
         const createOptions = (arr) => arr.map(item => `<option value="${item}">${item}</option>`).join('');
         const createCheckboxes = (arr, name) => arr.map(item => `<label><input type="checkbox" name="${name}" value="${item}"> ${item}</label>`).join('');
+        
         document.getElementById('standar').innerHTML = createOptions(CONFIG.STANDAR);
         document.getElementById('penanggungJawab').innerHTML = createOptions(CONFIG.PJ);
-        document.getElementById('tahun-ajaran').innerHTML = createOptions(CONFIG.TAHUN_AJARAN);
-        document.getElementById('bulan').innerHTML = createOptions(CONFIG.BULAN);
+        
+        // --- START OF CHANGES: Create checkboxes for Tahun Ajaran ---
+        document.getElementById('tahun-ajaran-group').innerHTML = createCheckboxes(CONFIG.TAHUN_AJARAN, 'tahunAjaranPelaksanaan');
+        // --- END OF CHANGES ---
+
+        document.getElementById('bulan-group').innerHTML = createCheckboxes(CONFIG.BULAN, 'bulanPelaksanaan');
         document.getElementById('modal-sumber-dana').innerHTML = createOptions(CONFIG.DANA);
         document.getElementById('sumber-dana-group').innerHTML = createCheckboxes(CONFIG.DANA, 'sumberDanaDirencakan');
         pjFilter.innerHTML = `<option value="Semua">Semua Penanggung Jawab</option>` + createOptions(CONFIG.PJ);
@@ -278,23 +309,104 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleFormSubmit(e) {
         e.preventDefault();
         const getCheckedValues = (name) => Array.from(document.querySelectorAll(`input[name="${name}"]:checked`)).map(cb => cb.value);
-        const newKegiatan = {
-            id: Date.now(),
-            uraian: document.getElementById('uraian').value.trim(),
-            standar: document.getElementById('standar').value,
-            pj: document.getElementById('penanggungJawab').value,
-            tahunAjaran: document.getElementById('tahun-ajaran').value,
-            bulan: document.getElementById('bulan').value,
-            sumberDanaDirencakan: getCheckedValues('sumberDanaDirencakan'),
-            anggaran: []
+
+        const uraian = document.getElementById('uraian').value.trim();
+        const standar = document.getElementById('standar').value;
+        const pj = document.getElementById('penanggungJawab').value;
+        
+        // --- START OF CHANGES: Get all checked years, months, and planned funding sources ---
+        const tahunAjaranBaru = getCheckedValues('tahunAjaranPelaksanaan');
+        const bulanBaru = getCheckedValues('bulanPelaksanaan');
+        const sumberDanaDirencakanBaru = getCheckedValues('sumberDanaDirencakan');
+        // --- END OF CHANGES ---
+
+        if (!uraian) { alert("Uraian kegiatan tidak boleh kosong."); return; }
+        if (tahunAjaranBaru.length === 0) { alert("Pilih minimal satu tahun ajaran pelaksanaan."); return; } // Validation for new checkbox
+        if (bulanBaru.length === 0) { alert("Pilih minimal satu bulan pelaksanaan."); return; }
+        if (sumberDanaDirencakanBaru.length === 0) { alert("Pilih minimal satu sumber dana yang direncanakan."); return; }
+
+        // Define the unique key for an activity (excluding year, month, and funding source which can be added/merged)
+        const queryKey = {
+            uraian: uraian,
+            standar: standar,
+            pj: pj
         };
-        if (!newKegiatan.uraian) { alert("Uraian kegiatan tidak boleh kosong."); return; }
-        if (newKegiatan.sumberDanaDirencakan.length === 0) { alert("Pilih minimal satu sumber dana yang direncanakan."); return; }
-        kegiatanCollection.insert(newKegiatan);
-        db.saveDatabase();
+
+        let existingKegiatan = kegiatanCollection.findOne(queryKey);
+        let message = '';
+
+        if (existingKegiatan) {
+            // Activity exists, update it by merging years, months, and planned funding sources
+            let updated = false;
+
+            // Merge new tahunAjaran
+            const currentTahunAjaranSet = new Set(existingKegiatan.tahunAjaran);
+            tahunAjaranBaru.forEach(newYear => {
+                if (!currentTahunAjaranSet.has(newYear)) {
+                    currentTahunAjaranSet.add(newYear);
+                    updated = true;
+                }
+            });
+            existingKegiatan.tahunAjaran = Array.from(currentTahunAjaranSet);
+
+            // Merge new bulan
+            const currentMonthsSet = new Set(existingKegiatan.bulan);
+            bulanBaru.forEach(newMonth => {
+                if (!currentMonthsSet.has(newMonth)) {
+                    currentMonthsSet.add(newMonth);
+                    updated = true;
+                }
+            });
+            existingKegiatan.bulan = Array.from(currentMonthsSet);
+
+            // Merge new sumberDanaDirencakan
+            const currentSumberDanaSet = new Set(existingKegiatan.sumberDanaDirencakan);
+            sumberDanaDirencakanBaru.forEach(newDana => {
+                if (!currentSumberDanaSet.has(newDana)) {
+                    currentSumberDanaSet.add(newDana);
+                    updated = true;
+                }
+            });
+            existingKegiatan.sumberDanaDirencakan = Array.from(currentSumberDanaSet);
+            
+            // Ensure anggaran is an array (robustness)
+            if (!Array.isArray(existingKegiatan.anggaran)) {
+                existingKegiatan.anggaran = [];
+                updated = true;
+            }
+
+            if (updated) {
+                kegiatanCollection.update(existingKegiatan);
+                db.saveDatabase();
+                message = 'Kegiatan berhasil diperbarui (tahun ajaran, bulan dan/atau sumber dana ditambahkan)!';
+            } else {
+                message = 'Kegiatan sudah ada dengan tahun ajaran, bulan dan sumber dana yang sama.';
+            }
+
+        } else {
+            // New activity
+            const newKegiatan = {
+                id: Date.now(),
+                uraian: uraian,
+                standar: standar,
+                pj: pj,
+                tahunAjaran: tahunAjaranBaru, // tahunAjaran is now an array
+                bulan: bulanBaru, // bulan is now an array
+                sumberDanaDirencakan: sumberDanaDirencakanBaru,
+                anggaran: []
+            };
+            kegiatanCollection.insert(newKegiatan);
+            db.saveDatabase();
+            message = 'Kegiatan berhasil didaftarkan!';
+        }
+
         renderAllTables();
         kegiatanForm.reset();
-        alert('Kegiatan berhasil didaftarkan!');
+        // Reset all checkboxes after submission
+        document.querySelectorAll('input[name="tahunAjaranPelaksanaan"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[name="bulanPelaksanaan"]').forEach(cb => cb.checked = false);
+        document.querySelectorAll('input[name="sumberDanaDirencakan"]').forEach(cb => cb.checked = false);
+        alert(message);
     }
 
     function handleAnggaranSubmit(e) {
@@ -361,33 +473,19 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const printButtonHTML = `<div class="print-controls"><button class="btn-sm btn-print">Cetak / Simpan PDF</button></div>`;
-    
-    // === PERUBAHAN JAVASCRIPT UNTUK STRUKTUR TANDA TANGAN (START) ===
     const signatureHTML = (type) => {
         const isRkas = type.startsWith('rkas');
-        // Struktur HTML diubah agar lebih mudah diatur dengan CSS Flexbox
-        // Setiap blok tanda tangan memiliki .signature-title (untuk jabatan) dan .signature-name (untuk nama)
         return `<div class="footer-signatures">
             <div class="signature-block">
-                <div class="signature-title">
-                    ${isRkas ? `Ketua Komite Sekolah,` : ' '}
-                </div>
-                <div class="signature-name">
-                    ${isRkas ? `<span class="editable" contenteditable="true">Drs.BEKTI AFIANTO,MM</span>` : ' '}
-                </div>
+                ${isRkas ? `Ketua Komite Sekolah,<div class="name"><span class="editable" contenteditable="true">Drs.BEKTI AFIANTO,MM</span></div>` : '<div></div>'}
             </div>
             <div class="signature-block">
-                <div class="signature-title">
-                    Banyuwangi, <span class="editable" contenteditable="true">DD MMMM YYYY</span>
-                    <br>Kepala SMK Gajah Mada Banyuwangi
-                </div>
-                <div class="signature-name">
-                    <span class="editable" contenteditable="true">Drs. H. WITJANARKO,M.Pd</span>
-                </div>
+                Banyuwangi, <span class="editable" contenteditable="true">DD MMMM YYYY</span>
+                <br>Kepala SMK Gajah Mada Banyuwangi
+                <div class="name"><span class="editable" contenteditable="true">Drs. H. WITJANARKO,M.Pd</span></div>
             </div>
         </div>`;
     };
-    // === PERUBAHAN JAVASCRIPT UNTUK STRUKTUR TANDA TANGAN (END) ===
 
     const generateTableBody = (data, rowRenderer) => {
         let body = '';
@@ -411,9 +509,20 @@ document.addEventListener('DOMContentLoaded', () => {
             </thead><tbody>`;
         
         const summary = data.reduce((acc, item) => {
-            const key = item.uraian + item.pj;
-            if (!acc[key]) { acc[key] = { ...item, tahun: new Set(), sumberDana: new Set() }; }
-            acc[key].tahun.add(item.tahunAjaran);
+            // Group by logical activity (uraian, standar, pj) across all years
+            const key = `${item.uraian}-${item.standar}-${item.pj}`;
+            if (!acc[key]) { 
+                acc[key] = { 
+                    uraian: item.uraian, 
+                    standar: item.standar, 
+                    pj: item.pj, 
+                    tahun: new Set(), 
+                    sumberDana: new Set() 
+                }; 
+            }
+            // --- START OF CHANGES: Iterate over item.tahunAjaran array ---
+            item.tahunAjaran.forEach(year => acc[key].tahun.add(year));
+            // --- END OF CHANGES ---
             const danaSources = item.anggaran.length > 0 ? item.anggaran.map(a => a.sumberDana) : item.sumberDanaDirencakan;
             danaSources.forEach(dana => acc[key].sumberDana.add(dana));
             return acc;
@@ -449,10 +558,12 @@ document.addEventListener('DOMContentLoaded', () => {
             </tr>
             </thead><tbody>`;
         
-        const filteredData = data.filter(k => k.tahunAjaran === tahunAjaran);
+        // --- START OF CHANGES: Filter by year array ---
+        const filteredData = data.filter(k => k.tahunAjaran.includes(tahunAjaran));
+        // --- END OF CHANGES ---
         const rowRenderer = (item, no) => `<tr data-id="${item.id}">
             <td style="text-align: center;">${no}</td><td>${item.uraian}</td>
-            ${CONFIG.BULAN.map(b => `<td class="cell-check ${item.bulan === b ? 'checked' : ''}"></td>`).join('')}
+            ${CONFIG.BULAN.map(b => `<td class="cell-check ${item.bulan.includes(b) ? 'checked' : ''}"></td>`).join('')}
             ${CONFIG.DANA.map(d => `<td class="cell-check ${item.sumberDanaDirencakan.includes(d) ? 'checked' : ''}"></td>`).join('')}
             <td>${item.pj}</td><td style="text-align: center;"><span class="delete-btn" data-id="${item.id}">X</span></td></tr>`;
         
@@ -478,13 +589,15 @@ document.addEventListener('DOMContentLoaded', () => {
                 ${CONFIG.DANA.map(d=>`<th>${d}</th>`).join('')}
             </tr></thead><tbody>`;
         
-        const filteredData = data.filter(k => k.tahunAjaran === tahunAjaran);
+        // --- START OF CHANGES: Filter by year array ---
+        const filteredData = data.filter(k => k.tahunAjaran.includes(tahunAjaran));
+        // --- END OF CHANGES ---
         const rowRenderer = (item, no) => {
             const nilaiPerDana = item.anggaran.reduce((acc, ang) => ({...acc, [ang.sumberDana]: (acc[ang.sumberDana] || 0) + ang.nilai}), {});
             const totalNilai = item.anggaran.reduce((sum, ang) => sum + ang.nilai, 0);
             return `<tr class="clickable" data-id="${item.id}">
                 <td style="text-align: center;">${no}</td><td>${item.uraian}</td>
-                ${CONFIG.BULAN.map(b => `<td class="cell-check ${item.bulan === b ? 'checked' : ''}"></td>`).join('')}
+                ${CONFIG.BULAN.map(b => `<td class="cell-check ${item.bulan.includes(b) ? 'checked' : ''}"></td>`).join('')}
                 ${CONFIG.DANA.map(d => `<td class="cell-value">${(nilaiPerDana[d] || 0).toLocaleString('id-ID')}</td>`).join('')}
                 <td class="cell-value">${totalNilai.toLocaleString('id-ID')}</td>
                 <td>${item.pj}</td><td style="text-align: center;"><span class="delete-btn" data-id="${item.id}">X</span></td></tr>`;
@@ -513,8 +626,11 @@ document.addEventListener('DOMContentLoaded', () => {
             ({ id, uraian, standar, pj, tahunAjaran, bulan, sumberDanaDirencakan, anggaran }));
         const dataForCsv = cleanData.map(row => { 
             const newRow = {...row}; 
+            // Ensure array fields are stringified JSON for proper CSV handling
             newRow.anggaran = JSON.stringify(newRow.anggaran); 
             newRow.sumberDanaDirencakan = JSON.stringify(newRow.sumberDanaDirencakan); 
+            newRow.bulan = JSON.stringify(newRow.bulan);
+            newRow.tahunAjaran = JSON.stringify(newRow.tahunAjaran); // <-- ADDED for 'tahunAjaran' array
             return newRow; 
         }); 
         const headers = Object.keys(dataForCsv[0]); 
@@ -523,7 +639,10 @@ document.addEventListener('DOMContentLoaded', () => {
             const values = headers.map(header => { 
                 let val = row[header]; 
                 if (val === null || val === undefined) val = ''; 
-                if (typeof val === 'string' && val.includes(',')) val = `"${val.replace(/"/g, '""')}"`; 
+                // Escape commas, newlines, and double quotes within values for CSV format
+                if (typeof val === 'string' && (val.includes(',') || val.includes('\n') || val.includes('"'))) { 
+                    val = `"${val.replace(/"/g, '""')}"`; 
+                } 
                 return val; 
             }); 
             csvRows.push(values.join(',')); 
@@ -531,7 +650,25 @@ document.addEventListener('DOMContentLoaded', () => {
         return csvRows.join('\n'); 
     }
     
-    function csvToArray(csvText) { const rows = csvText.trim().split('\n'); const headers = rows.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim()); return rows.map(row => { const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); return headers.reduce((obj, header, i) => { let value = values[i] ? values[i].replace(/,$/, '').trim() : ''; if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1).replace(/""/g, '"'); try { const parsed = JSON.parse(value); obj[header] = parsed; } catch (e) { obj[header] = value; } return obj; }, {}); }); }
+    function csvToArray(csvText) { 
+        const rows = csvText.trim().split('\n'); 
+        if (rows.length === 0) return [];
+        const headers = rows.shift().split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim()); 
+        return rows.map(row => { 
+            const values = row.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/); 
+            return headers.reduce((obj, header, i) => { 
+                let value = values[i] ? values[i].replace(/,$/, '').trim() : ''; 
+                if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1).replace(/""/g, '"'); 
+                try { 
+                    const parsed = JSON.parse(value); 
+                    obj[header] = parsed; 
+                } catch (e) { 
+                    obj[header] = value; 
+                } 
+                return obj; 
+            }, {}); 
+        }); 
+    }
     
     function handleDownloadAll() { 
         const allData = kegiatanCollection.find({});
@@ -557,13 +694,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     ...row, 
                     id: parseInt(row.id), 
                     anggaran: Array.isArray(row.anggaran) ? row.anggaran : [], 
-                    sumberDanaDirencakan: Array.isArray(row.sumberDanaDirencakan) ? row.sumberDanaDirencakan : [] 
+                    sumberDanaDirencakan: Array.isArray(row.sumberDanaDirencakan) ? row.sumberDanaDirencakan : [],
+                    bulan: Array.isArray(row.bulan) ? row.bulan : (row.bulan ? [row.bulan] : []), 
+                    tahunAjaran: Array.isArray(row.tahunAjaran) ? row.tahunAjaran : (row.tahunAjaran ? [row.tahunAjaran] : []) // <-- Ensure tahunAjaran is an array
                 })); 
                 let addedCount = 0; let updatedCount = 0; 
                 newData.forEach(newItem => { 
+                    // Sanitize input arrays for robustness
+                    if (!Array.isArray(newItem.bulan)) newItem.bulan = [];
+                    if (!Array.isArray(newItem.sumberDanaDirencakan)) newItem.sumberDanaDirencakan = [];
+                    if (!Array.isArray(newItem.anggaran)) newItem.anggaran = [];
+                    if (!Array.isArray(newItem.tahunAjaran)) newItem.tahunAjaran = []; // <-- Sanitize tahunAjaran
+
                     const existingDoc = kegiatanCollection.findOne({ id: newItem.id }); 
                     if (existingDoc) { 
-                        Object.assign(existingDoc, newItem);
+                        // Update existing fields, merge arrays
+                        existingDoc.uraian = newItem.uraian;
+                        existingDoc.standar = newItem.standar;
+                        existingDoc.pj = newItem.pj;
+                        
+                        // Merge tahunAjaran
+                        existingDoc.tahunAjaran = Array.from(new Set([...existingDoc.tahunAjaran, ...newItem.tahunAjaran]));
+                        // Merge months
+                        existingDoc.bulan = Array.from(new Set([...existingDoc.bulan, ...newItem.bulan]));
+                        // Merge sumberDanaDirencakan
+                        existingDoc.sumberDanaDirencakan = Array.from(new Set([...existingDoc.sumberDanaDirencakan, ...newItem.sumberDanaDirencakan]));
+                        
+                        // Merge anggaran: uploaded anggaran for existing sources overwrites, new sources are added
+                        newItem.anggaran.forEach(newAnggaran => {
+                            const existingAnggaranIndex = existingDoc.anggaran.findIndex(a => a.sumberDana === newAnggaran.sumberDana);
+                            if (existingAnggaranIndex !== -1) {
+                                existingDoc.anggaran[existingAnggaranIndex].nilai = newAnggaran.nilai;
+                            } else {
+                                existingDoc.anggaran.push(newAnggaran);
+                            }
+                        });
+
                         kegiatanCollection.update(existingDoc);
                         updatedCount++; 
                     } else { 
